@@ -3,6 +3,6 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
   username: String,
   password: String
-}, { timestamps: true });  // <-- ADD THIS
+}, { timestamps: true });
 
 export default mongoose.model("User", userSchema);

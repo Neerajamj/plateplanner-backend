@@ -3,34 +3,42 @@ import MealPlan from "../models/mealPlanModel.js";
 
 const router = express.Router();
 
-// SAVE WEEKLY PLAN
-router.post("/save", async (req, res) => {
+/* ---------------------------
+   GET MEAL PLAN BY USER
+--------------------------- */
+router.get("/:userId", async (req, res) => {
   try {
-    const { userId, plan } = req.body;
-
-    // If plan exists → update
-    let mealPlan = await MealPlan.findOne({ userId });
-
-    if (mealPlan) {
-      mealPlan.plan = plan;
-      await mealPlan.save();
-    } else {
-      mealPlan = await MealPlan.create({ userId, plan });
-    }
-
-    res.json({ message: "Meal plan saved", mealPlan });
+    const plan = await MealPlan.findOne({ userId: req.params.userId });
+    res.json(plan || {}); // return empty if not found
   } catch (err) {
-    res.status(500).json({ error: "Failed to save meal plan" });
+    res.status(500).json({ error: "Error fetching meal plan" });
   }
 });
 
-// GET WEEKLY PLAN
-router.get("/get/:userId", async (req, res) => {
+/* ---------------------------
+   SAVE MEAL PLAN
+--------------------------- */
+router.post("/save", async (req, res) => {
   try {
-    const mealPlan = await MealPlan.findOne({ userId: req.params.userId });
-    res.json(mealPlan || { plan: {} });
+    const { userId, week } = req.body;
+
+    if (!userId || !week) {
+      return res.status(400).json({ error: "Missing userId or week data" });
+    }
+
+    let plan = await MealPlan.findOne({ userId });
+
+    if (plan) {
+      plan.week = week;
+      await plan.save();
+    } else {
+      plan = await MealPlan.create({ userId, week });
+    }
+
+    res.json({ message: "Saved", plan });
   } catch (err) {
-    res.status(500).json({ error: "Failed to load meal plan" });
+    console.log("SAVE ERROR:", err);
+    res.status(500).json({ error: "Error saving meal plan" });
   }
 });
 
