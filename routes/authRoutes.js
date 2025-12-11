@@ -53,5 +53,19 @@ router.post("/login", async (req, res) => {
     res.json({ error: "Server error" });
   }
 });
+// GET USER PROFILE
+router.get("/profile/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+
+    if (!user) {
+      return res.json({ error: "User not found" });
+    }
+
+    res.json(user);
+  } catch (err) {
+    res.json({ error: "Server error" });
+  }
+});
 
 export default router;
